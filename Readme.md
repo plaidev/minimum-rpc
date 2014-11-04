@@ -28,7 +28,7 @@ server = new Server(io)
 server.set 'add', (a, b, cb) ->
   cb(null, a + b)
 
-# setup client
+# setup client in (node|browser)
 io = require('socket.io-client')
 client = new Client io_for_client, {url: 'http://localhost:2000'}
 
