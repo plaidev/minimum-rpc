@@ -203,8 +203,8 @@ require.relative = function(parent) {
 require.register("minimum-rpc/lib/index.js", function(exports, require, module){
 (function() {
   module.exports = {
-    server: require('./server'),
-    client: require('./client')
+    Server: require('./server'),
+    Client: require('./client')
   };
 
 }).call(this);
