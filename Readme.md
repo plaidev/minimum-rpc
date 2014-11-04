@@ -10,7 +10,7 @@ a minimum rpc module.
 
   Install with [component(1)](http://component.io):
 
-    $ component install nashibao/minimum-rpc
+    $ component install plaidev/minimum-rpc
 
 ## API
 
