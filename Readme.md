@@ -1,13 +1,13 @@
 
-# bolt-rpc
+# minimum-rpc
 
-  
+
 
 ## Installation
 
   Install with [component(1)](http://component.io):
 
-    $ component install nashibao/bolt-rpc
+    $ component install nashibao/minimum-rpc
 
 ## API
 

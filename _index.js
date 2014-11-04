@@ -200,7 +200,7 @@ require.relative = function(parent) {
 
   return localRequire;
 };
-require.register("bolt-rpc/lib/index.js", function(exports, require, module){
+require.register("minimum-rpc/lib/index.js", function(exports, require, module){
 (function() {
   module.exports = {
     server: require('./server'),
@@ -210,7 +210,7 @@ require.register("bolt-rpc/lib/index.js", function(exports, require, module){
 }).call(this);
 
 });
-require.register("bolt-rpc/lib/server.js", function(exports, require, module){
+require.register("minimum-rpc/lib/server.js", function(exports, require, module){
 (function() {
   var Server;
 
@@ -274,7 +274,7 @@ require.register("bolt-rpc/lib/server.js", function(exports, require, module){
 }).call(this);
 
 });
-require.register("bolt-rpc/lib/client.js", function(exports, require, module){
+require.register("minimum-rpc/lib/client.js", function(exports, require, module){
 (function() {
   var Client;
 
@@ -331,10 +331,10 @@ require.register("bolt-rpc/lib/client.js", function(exports, require, module){
 }).call(this);
 
 });
-require.alias("bolt-rpc/lib/index.js", "bolt-rpc/index.js");if (typeof exports == "object") {
-  module.exports = require("bolt-rpc");
+require.alias("minimum-rpc/lib/index.js", "minimum-rpc/index.js");if (typeof exports == "object") {
+  module.exports = require("minimum-rpc");
 } else if (typeof define == "function" && define.amd) {
-  define([], function(){ return require("bolt-rpc"); });
+  define([], function(){ return require("minimum-rpc"); });
 } else {
-  this["minimum_rpc"] = require("bolt-rpc");
+  this["minimum_rpc"] = require("minimum-rpc");
 }})();

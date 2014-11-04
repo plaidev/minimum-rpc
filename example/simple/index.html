@@ -2,8 +2,8 @@
 <script src="../../build/build.js"></script>
 <!-- <script src="../front.js"></script> -->
 <script>
-  var Client = require('bolt-rpc/lib/client');
-  // var Client = bolt.Client;
+  var Client = require('minimum-rpc/lib/client');
+  // var Client = minimum.Client;
   var client = new Client(io, {url: 'http://localhost:2000'});
   client.send('add', 1, 2, function(err, val){
     if(err){
