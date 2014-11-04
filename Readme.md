@@ -15,8 +15,6 @@ a minimum rpc module.
 ## API
 
 ```coffeescript
-assert = require("assert")
-io = require('socket.io-client')
 {Server, Client} = require('minimum-rpc')
 
 # setup server
