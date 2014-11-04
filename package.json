@@ -1,0 +1,37 @@
+{
+  "name": "minimum-rpc",
+  "version": "0.0.0",
+  "description": "simple and rapid rpc module.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon -e coffee example/simple/server.coffee",
+    "client": "coffee example/simple/client.coffee"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/plaidev/minimum-rpc"
+  },
+  "keywords": [
+    "rpc",
+    "websocket"
+  ],
+  "author": "plaidev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/plaidev/minimum-rpc/issues"
+  },
+  "homepage": "https://github.com/plaidev/minimum-rpc",
+  "devDependencies": {
+    "async": "^0.9.0",
+    "coffee-script": "^1.8.0",
+    "grunt": "^0.4.5",
+    "grunt-contrib-coffee": "^0.12.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-shell": "^1.1.1",
+    "lodash": "^2.4.1",
+    "mocha": "^2.0.1",
+    "socket.io": "^1.2.0",
+    "socket.io-client": "^1.2.0"
+  }
+}

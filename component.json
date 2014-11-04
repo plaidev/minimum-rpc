@@ -1,0 +1,16 @@
+{
+  "name": "bolt-rpc",
+  "repo": "nashibao/bolt-rpc",
+  "description": "",
+  "version": "0.0.1",
+  "keywords": [],
+  "dependencies": {},
+  "development": {},
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": [
+    "lib/index.js",
+    "lib/server.js",
+    "lib/client.js"
+  ]
+}
