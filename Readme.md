@@ -30,13 +30,12 @@ server.set 'add', (a, b, cb) ->
 
 # setup client in (node|browser)
 io = require('socket.io-client')
-client = new Client io_for_client, {url: 'http://localhost:2000'}
+client = new Client io, {url: 'http://localhost:2000'}
 
 # client api
 client.send 'add', 1, 2, (err, val) ->
   assert not err
   assert val is 3
-
 ```
 
 
