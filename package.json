@@ -4,7 +4,7 @@
   "description": "a minimum rpc module.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --reporter spec --compilers coffee:coffee-script/register",
     "server": "nodemon -e coffee example/simple/server.coffee",
     "client": "coffee example/simple/client.coffee"
   },
