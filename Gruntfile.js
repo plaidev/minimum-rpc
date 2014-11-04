@@ -13,7 +13,7 @@ module.exports = function(grunt) {
     },
     shell: {
       default: {
-        command: 'make;make install;',
+        command: 'make;',
         options: {
           stdout: true,
           stderr: true
