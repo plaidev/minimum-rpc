@@ -23,8 +23,6 @@ class Server
 
     @channel.on 'connection', (socket)=>
 
-      @socket = socket
-
       socket.on @sub_name_space + '_apply', (req, ack_cb)=>
 
         method = req.method
@@ -37,6 +35,8 @@ class Server
           ack_cb.apply(@, arguments)
 
         args.push cb
+
+        args.push socket
 
         try
 
