@@ -1,9 +1,12 @@
-
 # minimum-rpc
 
-
+a minimum rpc module.
 
 ## Installation
+
+  Install with npm
+
+    $ npm install minimum-rpc
 
   Install with [component(1)](http://component.io):
 
@@ -11,6 +14,32 @@
 
 ## API
 
+```coffeescript
+assert = require("assert")
+io = require('socket.io-client')
+{Server, Client} = require('minimum-rpc')
+
+# setup server
+app = require("http").createServer()
+io = require("socket.io")(app)
+app.listen 2000, () ->
+  console.log 'server listen start'
+server = new Server(io)
+
+# server api
+server.set 'add', (a, b, cb) ->
+  cb(null, a + b)
+
+# setup client
+io = require('socket.io-client')
+client = new Client io_for_client, {url: 'http://localhost:2000'}
+
+# client api
+client.send 'add', 1, 2, (err, val) ->
+  assert not err
+  assert val is 3
+
+```
 
 
 ## License
