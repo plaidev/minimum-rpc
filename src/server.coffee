@@ -44,6 +44,8 @@ class Server
 
         catch e
 
+          console.log 'cant apply args', e.stack
+
           ack_cb({message: e.message, name: e.name})
 
 module.exports = Server
