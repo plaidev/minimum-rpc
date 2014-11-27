@@ -44,6 +44,6 @@ class Server
 
         catch e
 
-          ack_cb({message: 'cant apply args.'})
+          ack_cb({message: e.message, name: e.name})
 
 module.exports = Server
