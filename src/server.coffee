@@ -7,6 +7,9 @@ class Server
 
     @sub_name_space = options.sub_name_space || '__'
 
+    @connection = options.connection || (socket, cb) ->
+      return cb null 
+
     @init()
 
   # new method
@@ -23,29 +26,33 @@ class Server
 
     @channel.on 'connection', (socket)=>
 
-      socket.on @sub_name_space + '_apply', (req, ack_cb)=>
+      @connection socket, (err) =>
 
-        method = req.method
-        args = req.args || []
+        return console.log 'connection error', err if err
 
-        if not @methods[method]?.apply?
-          return ack_cb({message: 'cant find method.'})
+        socket.on @sub_name_space + '_apply', (req, ack_cb)=>
 
-        cb = ()=>
-          ack_cb.apply(@, arguments)
+          method = req.method
+          args = req.args || []
 
-        args.push cb
+          if not @methods[method]?.apply?
+            return ack_cb({message: 'cant find method.'})
 
-        args.push socket
+          cb = ()=>
+            ack_cb.apply(@, arguments)
 
-        try
+          args.push cb
 
-          @methods[method].apply(@methods, args)
+          args.push socket
 
-        catch e
+          try
 
-          console.log 'cant apply args', e.stack
+            @methods[method].apply(@methods, args)
 
-          ack_cb({message: e.message, name: e.name})
+          catch e
+
+            console.log 'cant apply args', e.stack
+
+            ack_cb({message: e.message, name: e.name})
 
 module.exports = Server

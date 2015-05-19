@@ -8,7 +8,11 @@ io_for_client = require('socket.io-client')
 # server
 app.listen 2000, () ->
   console.log 'server listen start'
-server = new Server(io)
+server = new Server(io, undefined, {
+  connection: (socket, cb) ->
+    console.log 'authentification'
+    cb null
+})
 
 # client
 client = new Client io_for_client, {url: 'http://localhost:2000'}

@@ -23,9 +23,11 @@
   },
   "homepage": "https://github.com/plaidev/minimum-rpc",
   "devDependencies": {
+    "component": "^0.19.9",
     "async": "^0.9.0",
     "coffee-script": "^1.8.0",
-    "grunt": "^0.4.5",
+    "grunt": "~0.4.2",
+    "grunt-cli": "^0.1.13",
     "grunt-contrib-coffee": "^0.12.0",
     "grunt-contrib-watch": "^0.6.1",
     "grunt-shell": "^1.1.1",
