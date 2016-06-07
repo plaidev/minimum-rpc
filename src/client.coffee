@@ -1,6 +1,6 @@
 
 class Client
-  constructor: (io_or_socket, options) ->
+  constructor: (io_or_socket, options={}) ->
 
     @url = options.url || ''
 
@@ -11,7 +11,7 @@ class Client
     @_socket = io_or_socket
 
     if (io_or_socket.constructor.name isnt 'Socket')
-      @_socket = io_or_socket.connect @url + '/' + @name_space
+      @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
   send: () ->
 
