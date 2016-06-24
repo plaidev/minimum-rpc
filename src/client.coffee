@@ -1,4 +1,6 @@
 
+_managers = {} # for socket.io-client >= 1.4.x
+
 class Client
   constructor: (io_or_socket, options={}) ->
 
@@ -10,7 +12,15 @@ class Client
 
     @_socket = io_or_socket
 
-    if (io_or_socket.constructor.name isnt 'Socket')
+    # for socket.io-client >= 1.4.x
+    if io_or_socket.Manager?
+      path = '/' + @name_space
+      uri = @url
+      if not (uri in _managers)
+        _managers[uri] = io_or_socket.Manager(uri, options.connect_options)
+      @_socket = _managers[uri].socket(path)
+
+    else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
   send: () ->
