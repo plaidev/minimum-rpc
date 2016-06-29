@@ -16,7 +16,7 @@ class Client
     if io_or_socket.Manager?
       path = '/' + @name_space
       uri = @url
-      if not (uri in _managers)
+      if not (uri of _managers)
         _managers[uri] = io_or_socket.Manager(uri, options.connect_options)
       @_socket = _managers[uri].socket(path)
 
