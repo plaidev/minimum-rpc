@@ -1,9 +1,17 @@
 
 class Server
 
-  constructor: (@io, @methods={}, options={}) ->
+  constructor: (@io, methods={}, options={}) ->
 
     {name_space, connection, join_request, default_sub_name_space} = options
+
+    default_sub_name_space ?= '__'
+
+    if default_sub_name_space of methods
+      @methods = methods
+    else
+      @methods = {}
+      @methods[default_sub_name_space] = methods or {}
 
     @name_space = name_space or '__'
 
@@ -13,27 +21,28 @@ class Server
     @join_request = join_request || (socket, sub_name_space, cb) ->
       return cb null
 
-    @default_sub_name_space = default_sub_name_space or '__'
+    @default_sub_name_space = default_sub_name_space
 
     @init()
 
   # new method
-  set: (method_name, method) ->
-    @methods[method_name] = method
+  set: (method_name, method, sub_name_space="__") ->
+    @methods[sub_name_space] ?= {}
+    @methods[sub_name_space][method_name] = method
 
-  get: (method_name) ->
-    return @methods[method_name]
+  get: (method_name, sub_name_space="__") ->
+    return @methods[sub_name_space]?[method_name]
 
   join: (socket, sub_name_space) ->
 
     socket.join(sub_name_space)
 
-    socket.on sub_name_space + '_apply', (req, ack_cb)=>
+    socket.on sub_name_space + '_apply', (req, ack_cb) =>
 
       method = req.method
       args = req.args || []
 
-      if not @methods[method]?.apply?
+      if not @methods[sub_name_space]?[method]?.apply?
         return ack_cb({message: 'cant find method.'})
 
       cb = ()=>
@@ -45,7 +54,7 @@ class Server
 
       try
 
-        @methods[method].apply(@methods, args)
+        @methods[sub_name_space][method].apply(@methods[sub_name_space], args)
 
       catch e
 
@@ -74,6 +83,7 @@ class Server
 
             if err
               console.log 'sub namespace join failed', err
+              return
 
             @join socket, req.sub_name_space
 
