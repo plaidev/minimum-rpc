@@ -1,27 +1,26 @@
+DEFAULT_NAME_SPACE = '__'
+DEFAULT_SUB_NAME_SPACE = '__'
+
 
 class Server
 
   constructor: (@io, methods={}, options={}) ->
 
-    {name_space, connection, join_request, default_sub_name_space} = options
+    {name_space, connection, join_request} = options
 
-    default_sub_name_space ?= '__'
-
-    if default_sub_name_space of methods
+    if DEFAULT_SUB_NAME_SPACE of methods
       @methods = methods
     else
       @methods = {}
-      @methods[default_sub_name_space] = methods or {}
+      @methods[DEFAULT_SUB_NAME_SPACE] = methods or {}
 
-    @name_space = name_space or '__'
+    @name_space = name_space or DEFAULT_NAME_SPACE
 
     @connection = connection or (socket, cb) ->
       return cb null
 
     @join_request = join_request || (socket, sub_name_space, cb) ->
       return cb null
-
-    @default_sub_name_space = default_sub_name_space
 
     @init()
 
@@ -45,7 +44,7 @@ class Server
       if not @methods[sub_name_space]?[method]?.apply?
         return ack_cb({message: 'cant find method.'})
 
-      cb = ()=>
+      cb = =>
         ack_cb.apply(@, arguments)
 
       args.push cb
@@ -69,7 +68,7 @@ class Server
 
     @channel.on 'connection', (socket) =>
 
-      @join socket, @default_sub_name_space
+      @join socket, DEFAULT_SUB_NAME_SPACE
 
       @connection socket, (err) =>
 
@@ -77,7 +76,7 @@ class Server
 
           return if not req?.sub_name_space?
 
-          return if not req.sub_name_space is @default_sub_name_space
+          return if not req.sub_name_space is DEFAULT_SUB_NAME_SPACE
 
           @join_request socket, req.sub_name_space, (err) =>
 
