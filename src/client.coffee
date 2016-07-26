@@ -23,7 +23,10 @@ class Client
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
-    @_socket.emit 'join', {sub_name_space: @sub_name_space} if @sub_name_space isnt '__'
+    @join @sub_name_space
+
+  join: (sub_name_space) ->
+    @_socket.emit 'join', {sub_name_space} if sub_name_space isnt '__'
 
   send: () ->
 
