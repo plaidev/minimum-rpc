@@ -61,6 +61,8 @@ class Server
 
         ack_cb({message: e.message, name: e.name})
 
+      # timeout?
+
   # initialize
   init: ->
 
@@ -68,19 +70,23 @@ class Server
 
     @channel.on 'connection', (socket) =>
 
+      joined = []
+
       @connection socket, (err) =>
 
         socket.on 'join', (req) =>
 
           return if not req?.sub_name_space?
 
-          return if not req.sub_name_space is DEFAULT_SUB_NAME_SPACE
+          return if req.sub_name_space in joined
 
           @join_request socket, req.sub_name_space, (err) =>
 
             if err
               console.log 'sub namespace join failed', err
               return
+
+            joined.push req.sub_name_space
 
             @join socket, req.sub_name_space
 
