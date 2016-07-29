@@ -18,7 +18,7 @@ server = new Server(io, undefined, {
     cb null
   join_request: (socket, sub_name_space, cb) ->
     called['join_request'] = true
-    if sub_name_space is 'accept_sub_name_space'
+    if sub_name_space is 'accept_sub_name_space' or sub_name_space is '__'
       cb null
     else
       cb new Error('reject')
@@ -38,7 +38,7 @@ describe "Basic RPC Function", ->
       assert val is 3
 
       assert called.connection
-      assert not called.join_request
+      assert called.join_request
 
       done()
 

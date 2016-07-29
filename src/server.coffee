@@ -25,11 +25,11 @@ class Server
     @init()
 
   # new method
-  set: (method_name, method, sub_name_space="__") ->
+  set: (method_name, method, sub_name_space=DEFAULT_SUB_NAME_SPACE) ->
     @methods[sub_name_space] ?= {}
     @methods[sub_name_space][method_name] = method
 
-  get: (method_name, sub_name_space="__") ->
+  get: (method_name, sub_name_space=DEFAULT_SUB_NAME_SPACE) ->
     return @methods[sub_name_space]?[method_name]
 
   join: (socket, sub_name_space) ->
@@ -67,8 +67,6 @@ class Server
     @channel = @io.of('/' +   @name_space)
 
     @channel.on 'connection', (socket) =>
-
-      @join socket, DEFAULT_SUB_NAME_SPACE
 
       @connection socket, (err) =>
 
