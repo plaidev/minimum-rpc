@@ -12,6 +12,8 @@ class Client
 
     @_socket = io_or_socket
 
+    @_joined = []
+
     # for socket.io-client >= 1.4.x
     if io_or_socket.Manager?
       path = '/' + @name_space
@@ -22,6 +24,13 @@ class Client
 
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
+
+    @join @sub_name_space
+
+  join: (sub_name_space) ->
+    if not (sub_name_space in @_joined)
+      @_socket.emit 'join', {sub_name_space}
+      @_joined.push sub_name_space
 
   send: () ->
 
