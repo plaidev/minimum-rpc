@@ -64,17 +64,24 @@ describe 'sub name space', ->
       assert val is 4
       done()
 
-  it 'can join to default sub name space', (done) ->
+  it 'can join to accepted sub name space', (done) ->
     client = new Client io_for_client, {
       url: 'http://localhost:2000',
       sub_name_space: 'accept_sub_name_space'}
     client.send 'add2', 1, 2, (err, val) ->
       assert not err
       assert val is 5
+      done()
 
-      client.send 'add1', 1, 2, (err, val) ->
-        assert err
-        done()
+  it 'default sub namespace methods callable from other sub namespace', (done) ->
+    client = new Client io_for_client, {
+      url: 'http://localhost:2000',
+      sub_name_space: 'accept_sub_name_space'}
+
+    client.send 'add1', 1, 2, (err, val) ->
+      assert not err
+      assert val is 4
+      done()
 
   it 'can not join to default sub name space', (done) ->
     client = new Client io_for_client, {
@@ -82,7 +89,6 @@ describe 'sub name space', ->
       sub_name_space: 'reject_sub_name_space'}
 
     client.send 'add3', 1, 2, (err, val) ->
-      console.log err, val
       assert err
 
     setTimeout ->
