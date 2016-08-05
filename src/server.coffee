@@ -41,7 +41,9 @@ class Server
       method = req.method
       args = req.args || []
 
-      if not @methods[sub_name_space]?[method]?.apply?
+      method = @methods[sub_name_space]?[method] or @methods[DEFAULT_SUB_NAME_SPACE]?[method]
+
+      if not method?.apply?
         return ack_cb({message: 'cant find method.'})
 
       cb = =>
@@ -53,7 +55,7 @@ class Server
 
       try
 
-        @methods[sub_name_space][method].apply(@methods[sub_name_space], args)
+        method.apply(@methods[sub_name_space] or @methods[DEFAULT_SUB_NAME_SPACE], args)
 
       catch e
 
