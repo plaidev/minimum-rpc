@@ -5,7 +5,7 @@ class Server
 
   constructor: (@io, methods={}, options={}) ->
 
-    {name_space, connection, join_request} = options
+    {name_space, connection, authorization} = options
 
     @methods = {}
 
@@ -14,7 +14,7 @@ class Server
     @connection = connection or (socket, cb) ->
       return cb null
 
-    @join_request = join_request || (socket, auth_name, cb) ->
+    @authorization = authorization || (socket, auth_name, cb) ->
       return cb null
 
     @init()
@@ -71,16 +71,16 @@ class Server
 
         socket.on 'join', (req) =>
 
-          auth_name = req.sub_name_space or req.auth_name
+          auth_name = req.auth_name
 
           return if not auth_name
 
           return if auth_name in joined
 
-          @join_request socket, auth_name, (err) =>
+          @authorization socket, auth_name, (err) =>
 
             if err
-              console.log 'sub namespace join failed', err
+              console.log 'authorization error, join failed', err
               return
 
             joined.push auth_name
