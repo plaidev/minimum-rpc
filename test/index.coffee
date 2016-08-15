@@ -111,7 +111,7 @@ describe 'reconnect', ->
     })
     done()
 
-  it 'can join to accept room', (done) ->
+  it 'can re-join to rooms on reconnected', (done) ->
     client = new Client io_for_client, {
       url: 'http://localhost:2000',
       name_space: 'reconnect_test'
