@@ -5,7 +5,7 @@ class Server
 
   constructor: (@io, methods={}, options={}) ->
 
-    {name_space, connection, authorization} = options
+    {name_space, connection, join_request} = options
 
     @methods = {}
 
@@ -14,7 +14,7 @@ class Server
     @connection = connection or (socket, cb) ->
       return cb null
 
-    @authorization = authorization || (socket, auth_name, cb) ->
+    @join_request = join_request || (socket, auth_name, cb) ->
       return cb null
 
     @init()
@@ -27,11 +27,13 @@ class Server
   get: (method_name) ->
     return @methods[method_name]
 
-  join: (socket, auth_name) ->
+  _join: (socket, room) ->
 
-    socket.join(auth_name)
+    socket.join(room)
 
-    socket.on auth_name + '_apply', (req, ack_cb) =>
+  _listen: (socket) ->
+
+    socket.on 'apply', (req, ack_cb) =>
 
       method = req.method
       args = req.args || []
@@ -69,23 +71,25 @@ class Server
 
       @connection socket, (err) =>
 
+        @_listen(socket)
+
         socket.on 'join', (req) =>
 
-          auth_name = req.auth_name
+          room = req.room
 
-          return if not auth_name
+          return if not room
 
-          return if auth_name in joined
+          return if room in joined
 
-          @authorization socket, auth_name, (err) =>
+          @join_request socket, room, (err) =>
 
             if err
               console.log 'authorization error, join failed', err
               return
 
-            joined.push auth_name
+            joined.push room
 
-            @join socket, auth_name
+            @_join socket, room
 
         return console.log 'connection error', err if err
 

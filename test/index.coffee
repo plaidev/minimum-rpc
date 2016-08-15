@@ -13,12 +13,14 @@ called = {}
 
 server = new Server(io, undefined, {
   connection: (socket, cb) ->
+    console.log socket.request
+
     console.log 'authentification'
     called['connection'] = true
     cb null
-  authorization: (socket, auth_name, cb) ->
-    called['authorization'] = true
-    if auth_name is 'accept_auth_name' or auth_name is '__'
+  join_request: (socket, room, cb) ->
+    called['join_request'] = true
+    if room is 'accept_auth_name' or room is '__'
       cb null
     else
       cb new Error('reject')
@@ -38,7 +40,7 @@ describe "Basic RPC Function", ->
       assert val is 3
 
       assert called.connection
-      assert called.authorization
+      assert called.join_request
 
       done()
 
@@ -65,7 +67,7 @@ describe 'sub name space', ->
   it 'can join to accept auth', (done) ->
     client = new Client io_for_client, {
       url: 'http://localhost:2000',
-      auth_name: 'accept_auth_name'}
+      room: 'accept_auth_name'}
     client.send 'add2', 1, 2, (err, val) ->
       assert not err
       assert val is 5
@@ -75,17 +77,17 @@ describe 'sub name space', ->
         assert val is 4
         done()
 
-  it 'can not join to reject auth', (done) ->
-    client = new Client io_for_client, {
-      url: 'http://localhost:2000',
-      auth_name: 'reject_auth_name'}
+  # it 'can not join to reject auth', (done) ->
+  #   client = new Client io_for_client, {
+  #     url: 'http://localhost:2000',
+  #     room: 'reject_auth_name'}
 
-    client.send 'add3', 1, 2, (err, val) ->
-      console.log err, val
-      assert err
+  #   client.send 'add3', 1, 2, (err, val) ->
+  #     console.log err, val
+  #     assert err
 
-    setTimeout ->
-      console.log 'connection timeout'
-      assert true
-      done()
-    , 1000
+  #   setTimeout ->
+  #     console.log 'connection timeout'
+  #     assert true
+  #     done()
+  #   , 1000
