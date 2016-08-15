@@ -18,8 +18,12 @@ class Client
       uri = @url
       if not (uri of _managers)
         _managers[uri] = io_or_socket.Manager(uri, options.connect_options)
-      @_socket = _managers[uri].socket(path)
-      _managers[uri].on 'reconnect', =>
+
+      @_manager = _managers[uri]
+
+      @_socket = @_manager.socket(path)
+
+      @_socket.on 'reconnect', =>
         joined = @_joined
         @_joined = []
         for room in joined

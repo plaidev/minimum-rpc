@@ -101,3 +101,50 @@ describe 'Grouped emit', ->
       assert false
 
     server.channel.to('accept_room').emit 'path/event', {name: 'leaked event'}
+
+
+describe 'reconnect', ->
+
+  before (done) ->
+    @server = new Server(io, undefined, {
+      name_space: 'reconnect_test'
+    })
+    done()
+
+  it 'can join to accept room', (done) ->
+    client = new Client io_for_client, {
+      url: 'http://localhost:2000',
+      name_space: 'reconnect_test'
+    }
+
+    client._manager.reconnectionDelayMax 100
+
+    client.join 'reconnect_test', (err) =>
+      assert not err
+
+      reconnected = false
+
+      client._socket.on 'test', (event) ->
+        assert event.val
+        if reconnected
+          assert event.reconnected
+          done()
+
+      setTimeout =>
+        @server.channel.to('reconnect_test').emit 'test', {val: true}
+      , 100
+
+      setTimeout =>
+        io.close() # app.close()も含んでいる
+
+        app = require("http").createServer()
+        app.listen 2000, =>
+          io = require("socket.io")(app)
+          @server = new Server(io, undefined, {
+            name_space: 'reconnect_test'
+          })
+          reconnected = true
+          setTimeout =>
+            @server.channel.to('reconnect_test').emit 'test', {val: true, reconnected}
+          , 200
+
