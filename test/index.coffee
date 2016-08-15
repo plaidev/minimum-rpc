@@ -13,81 +13,91 @@ called = {}
 
 server = new Server(io, undefined, {
   connection: (socket, cb) ->
-    console.log socket.request
-
     console.log 'authentification'
     called['connection'] = true
     cb null
-  join_request: (socket, room, cb) ->
-    called['join_request'] = true
-    if room is 'accept_auth_name' or room is '__'
+  join: (socket, room, cb) ->
+    called['join'] = true
+    if room is 'accept_room'
       cb null
     else
       cb new Error('reject')
 })
 
+server_ns = new Server(io, undefined, {
+  name_space: 'ns'
+})
+
 # client
 client = new Client io_for_client, {url: 'http://localhost:2000'}
+client_ns = new Client io_for_client, {url: 'http://localhost:2000', name_space: 'ns'}
+
+# methods
+server.set 'add', (a, b, cb) ->
+  cb(null, a + b)
+
+server_ns.set 'add', (a, b, cb) ->
+  cb(null, a + b + 1)
+
 
 describe "Basic RPC Function", ->
 
   it "1 + 2 = 3", (done) ->
-    server.set 'add', (a, b, cb) ->
-      cb(null, a + b)
-
     client.send 'add', 1, 2, (err, val) ->
       assert not err
       assert val is 3
 
       assert called.connection
-      assert called.join_request
 
       done()
 
-describe 'sub name space', ->
+describe 'Namespace', ->
 
-  before ->
-    server.set 'add1', (a, b, cb) ->
-      cb(null, a + b + 1)
+  it 'default namespaced client call default server', (done) ->
+    client.send 'add', 1, 2, (err, val) ->
+      assert not err
+      assert val is 3
+      done()
 
-    server.set 'add2', (a, b, cb) ->
-      cb(null, a + b + 2)
-
-    server.set 'add3', (a, b, cb) ->
-      cb(null, a + b + 3)
-
-  it 'can join to default auth', (done) ->
-    client = new Client io_for_client, {
-      url: 'http://localhost:2000'}
-    client.send 'add1', 1, 2, (err, val) ->
+  it 'namespaced client call namespaced server', (done) ->
+    client_ns.send 'add', 1, 2, (err, val) ->
       assert not err
       assert val is 4
       done()
 
-  it 'can join to accept auth', (done) ->
-    client = new Client io_for_client, {
-      url: 'http://localhost:2000',
-      room: 'accept_auth_name'}
-    client.send 'add2', 1, 2, (err, val) ->
-      assert not err
-      assert val is 5
+describe 'Grouped emit', ->
 
-      client.send 'add1', 1, 2, (err, val) ->
-        assert not err
-        assert val is 4
+  it 'can join to accept room', (done) ->
+    client = new Client io_for_client, {
+      url: 'http://localhost:2000'}
+
+    client.join 'accept_room', (err) ->
+      assert not err
+      assert called.join
+
+      client._socket.on 'path/event', (event) ->
+        assert event.name is 'event_name'
+        client._socket.off 'path/event'
         done()
 
-  # it 'can not join to reject auth', (done) ->
-  #   client = new Client io_for_client, {
-  #     url: 'http://localhost:2000',
-  #     room: 'reject_auth_name'}
+      server.channel.to('accept_room').emit 'path/event', {name: 'event_name'}
 
-  #   client.send 'add3', 1, 2, (err, val) ->
-  #     console.log err, val
-  #     assert err
+  it 'cannot join to reject room', (done) ->
+    client = new Client io_for_client, {
+      url: 'http://localhost:2000'}
 
-  #   setTimeout ->
-  #     console.log 'connection timeout'
-  #     assert true
-  #     done()
-  #   , 1000
+    client.join 'reject_room', (err) ->
+      assert err
+      done()
+
+  it 'can listen leaked event from same namespace client room', (done) ->
+    client2 = new Client io_for_client, {url: 'http://localhost:2000'}
+    client2._socket.on 'path/event', (event) ->
+      assert event.name is 'leaked event'
+      setTimeout done, 100
+
+    client3 = new Client io_for_client, {url: 'http://localhost:2000', name_space: 'ns'}
+    client3._socket.on 'path/event', (event) ->
+      assert false
+
+    server.channel.to('accept_room').emit 'path/event', {name: 'leaked event'}
