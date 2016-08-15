@@ -8,7 +8,7 @@ class Client
 
     @name_space = options.name_space || '__'
 
-    @sub_name_space = options.sub_name_space || '__'
+    @auth_name = options.auth_name || '__'
 
     @_socket = io_or_socket
 
@@ -25,12 +25,12 @@ class Client
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
-    @join @sub_name_space
+    @join @auth_name
 
-  join: (sub_name_space) ->
-    if not (sub_name_space in @_joined)
-      @_socket.emit 'join', {sub_name_space}
-      @_joined.push sub_name_space
+  join: (auth_name) ->
+    if not (auth_name in @_joined)
+      @_socket.emit 'join', {auth_name}
+      @_joined.push auth_name
 
   send: () ->
 
@@ -57,6 +57,6 @@ class Client
       args: args
     }
 
-    @_socket.emit @sub_name_space + '_apply', req, ack_cb
+    @_socket.emit @auth_name + '_apply', req, ack_cb
 
 module.exports = Client
