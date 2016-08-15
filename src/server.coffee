@@ -5,16 +5,19 @@ class Server
 
   constructor: (@io, methods={}, options={}) ->
 
-    {name_space, connection, join_request} = options
+    {name_space, connection, join} = options
 
     @methods = {}
 
     @name_space = name_space or DEFAULT_NAME_SPACE
 
+    # for back compatibility
+    @name_space += '/' + options.sub_name_space if options.sub_name_space
+
     @connection = connection or (socket, cb) ->
       return cb null
 
-    @join_request = join_request || (socket, auth_name, cb) ->
+    @join = join || (socket, room, cb) ->
       return cb null
 
     @init()
@@ -26,10 +29,6 @@ class Server
 
   get: (method_name) ->
     return @methods[method_name]
-
-  _join: (socket, room) ->
-
-    socket.join(room)
 
   _listen: (socket) ->
 
@@ -60,6 +59,21 @@ class Server
 
       # timeout?
 
+    socket.on 'join', (req, ack_cb) =>
+
+      room = req.room
+
+      return if not room
+
+      @join socket, room, (err) =>
+
+        if err
+          console.log 'join failed', err
+          return ack_cb({message: err.message, name: err.name})
+
+        socket.join room, =>
+          ack_cb.apply @, arguments
+
   # initialize
   init: ->
 
@@ -67,31 +81,11 @@ class Server
 
     @channel.on 'connection', (socket) =>
 
-      joined = []
-
       @connection socket, (err) =>
 
-        @_listen(socket)
-
-        socket.on 'join', (req) =>
-
-          room = req.room
-
-          return if not room
-
-          return if room in joined
-
-          @join_request socket, room, (err) =>
-
-            if err
-              console.log 'authorization error, join failed', err
-              return
-
-            joined.push room
-
-            @_join socket, room
-
         return console.log 'connection error', err if err
+
+        @_listen(socket)
 
 
 module.exports = Server

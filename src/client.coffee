@@ -8,8 +8,6 @@ class Client
 
     @name_space = options.name_space || '__'
 
-    @room = options.room || '__'
-
     @_socket = io_or_socket
 
     @_joined = []
@@ -21,16 +19,22 @@ class Client
       if not (uri of _managers)
         _managers[uri] = io_or_socket.Manager(uri, options.connect_options)
       @_socket = _managers[uri].socket(path)
+      _managers[uri].on 'reconnect', =>
+        joined = @_joined
+        @_joined = []
+        for room in joined
+          @join room
 
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
-    @join @room
+  join: (room, cb=()->) ->
+    return cb?() if room in @_joined
 
-  join: (room) ->
-    if not (room in @_joined)
-      @_socket.emit 'join', {room}
+    @_socket.emit 'join', {room}, (err) =>
+      return cb?(err) if err
       @_joined.push room
+      cb?(err)
 
   send: () ->
 
