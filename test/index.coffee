@@ -16,9 +16,9 @@ server = new Server(io, undefined, {
     console.log 'authentification'
     called['connection'] = true
     cb null
-  join_request: (socket, sub_name_space, cb) ->
-    called['join_request'] = true
-    if sub_name_space is 'accept_sub_name_space' or sub_name_space is '__'
+  authorization: (socket, auth_name, cb) ->
+    called['authorization'] = true
+    if auth_name is 'accept_auth_name' or auth_name is '__'
       cb null
     else
       cb new Error('reject')
@@ -38,7 +38,7 @@ describe "Basic RPC Function", ->
       assert val is 3
 
       assert called.connection
-      assert called.join_request
+      assert called.authorization
 
       done()
 
@@ -50,13 +50,11 @@ describe 'sub name space', ->
 
     server.set 'add2', (a, b, cb) ->
       cb(null, a + b + 2)
-    , 'accept_sub_name_space'
 
     server.set 'add3', (a, b, cb) ->
       cb(null, a + b + 3)
-    , 'reject_sub_name_space'
 
-  it 'can join to default sub name space', (done) ->
+  it 'can join to default auth', (done) ->
     client = new Client io_for_client, {
       url: 'http://localhost:2000'}
     client.send 'add1', 1, 2, (err, val) ->
@@ -64,22 +62,23 @@ describe 'sub name space', ->
       assert val is 4
       done()
 
-  it 'can join to default sub name space', (done) ->
+  it 'can join to accept auth', (done) ->
     client = new Client io_for_client, {
       url: 'http://localhost:2000',
-      sub_name_space: 'accept_sub_name_space'}
+      auth_name: 'accept_auth_name'}
     client.send 'add2', 1, 2, (err, val) ->
       assert not err
       assert val is 5
 
       client.send 'add1', 1, 2, (err, val) ->
-        assert err
+        assert not err
+        assert val is 4
         done()
 
-  it 'can not join to default sub name space', (done) ->
+  it 'can not join to reject auth', (done) ->
     client = new Client io_for_client, {
       url: 'http://localhost:2000',
-      sub_name_space: 'reject_sub_name_space'}
+      auth_name: 'reject_auth_name'}
 
     client.send 'add3', 1, 2, (err, val) ->
       console.log err, val
