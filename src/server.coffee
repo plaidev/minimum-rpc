@@ -24,7 +24,6 @@ class Server
 
   # new method
   set: (method_name, method) ->
-    @methods[method_name] ?= {}
     @methods[method_name] = method
 
   get: (method_name) ->
@@ -71,7 +70,11 @@ class Server
           console.log 'join failed', err
           return ack_cb({message: err.message, name: err.name})
 
-        socket.join room, =>
+        socket.join room, (err) =>
+          if err
+            console.log 'socket.io join failed', err
+            return ack_cb({message: err.message, name: err.name})
+
           ack_cb.apply @, arguments
 
   # initialize
