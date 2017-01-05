@@ -2,7 +2,7 @@
 _managers = {} # for socket.io-client >= 1.4.x
 
 class Client
-  constructor: (io_or_socket, options={}) ->
+  constructor: (io_or_socket, options={}, cb) ->
 
     @url = options.url || ''
 
@@ -31,6 +31,14 @@ class Client
 
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
+
+    return if not cb
+
+    @_socket.on 'connection_ack', (data) ->
+
+      if data.error
+        return cb data.error
+      return cb null, {success: true}
 
   join: (room, cb=()->) ->
     return cb?() if room in @_joined

@@ -86,9 +86,18 @@ class Server
 
       @connection socket, (err) =>
 
-        return console.log 'connection error', err if err
+        if err
+
+          console.log 'connection error', err
+
+          socket.emit 'connection_ack', {error: true, message: err.message, name: err.name}
+
+          return
 
         @_listen(socket)
+        
+        socket.emit 'connection_ack', {error: false}
+
 
 
 module.exports = Server
