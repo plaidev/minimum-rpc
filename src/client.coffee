@@ -13,9 +13,12 @@ class Client
 
     @_joined = []
 
-    @_connection_error = _connection_errors[@url]
+    @_connection_error = null
 
-    if @_connection_error
+    if io_or_socket.Manager? and _connection_errors[@url]
+
+      @_connection_error = _connection_errors[@url]
+
       if cb
         setTimeout =>
           cb @_connection_error
@@ -46,6 +49,11 @@ class Client
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
+    # not error, but connection acked
+    if io_or_socket.Manager? and url of _connection_errors
+      cb null, {success: true} if cb
+      return
+
     self = @
 
     @_socket.on 'connection_ack', (data) ->
@@ -60,7 +68,8 @@ class Client
 
         return
 
-      _connection_error = null
+      # connection success
+      _connection_errors[self.url] = null
 
       cb null, {success: true} if cb
 
