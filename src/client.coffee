@@ -1,8 +1,9 @@
 
 _managers = {} # for socket.io-client >= 1.4.x
+_connection_errors = {}
 
 class Client
-  constructor: (io_or_socket, options={}, cb) ->
+  constructor: (io_or_socket, options={}, cb=null) ->
 
     @url = options.url || ''
 
@@ -11,6 +12,15 @@ class Client
     @_socket = io_or_socket
 
     @_joined = []
+
+    @_connection_error = _connection_errors[@url]
+
+    if @_connection_error
+      if cb
+        setTimeout =>
+          cb @_connection_error
+        , 0
+      return
 
     # for socket.io-client >= 1.4.x
     if io_or_socket.Manager?
@@ -24,21 +34,37 @@ class Client
       @_socket = @_manager.socket(path)
 
       @_socket.on 'reconnect', =>
+
         joined = @_joined
+
         @_joined = []
+
         for room in joined
+
           @join room
 
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
-    return if not cb
+    self = @
 
     @_socket.on 'connection_ack', (data) ->
 
       if data.error
-        return cb data.error
-      return cb null, {success: true}
+
+        _connection_errors[self.url] = new Error(data.message)
+        _connection_errors[self.url].name = data.name
+        self._connection_error = _connection_errors[self.url]
+
+        cb self._connection_error if cb
+
+        return
+
+      _connection_error = null
+
+      cb null, {success: true} if cb
+
+      return 
 
   join: (room, cb=()->) ->
     return cb?() if room in @_joined
@@ -64,6 +90,9 @@ class Client
     return @_send(method, args)
 
   _send: (method, args=[], cb=()->) ->
+
+    if @_connection_error
+      return cb.apply(@, [@_connection_error])
 
     ack_cb = () ->
       return cb.apply(@, arguments)
