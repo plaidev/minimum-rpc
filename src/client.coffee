@@ -50,7 +50,7 @@ class Client
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
     # not error, but connection acked
-    if io_or_socket.Manager? and url of _connection_errors
+    if io_or_socket.Manager? and @url of _connection_errors
       cb null, {success: true} if cb
       return
 
