@@ -69,6 +69,9 @@ describe 'reconnect', ->
         cnt++
         console.log('okokok', err, n, cnt)
 
+        assert cnt is 3
+        done()
+
     client._socket.on 'reconnect', ->
       console.log('reconnect')
 
@@ -81,9 +84,6 @@ describe 'reconnect', ->
 
         console.log('call delayMethod method 2 (lost)')
         client.send 'delayMethod', 2, (err) ->
-          console.log 'can not call'
+          assert err.name is 'ResponseError'
           console.log('okok', err, n, cnt)
           cnt++
-
-          assert cnt is 3
-          done()
