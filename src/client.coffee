@@ -1,6 +1,6 @@
 
 _managers = {} # for socket.io-client >= 1.4.x
-_connection_errors = {}
+_connectionErrors = {}
 
 class Client
   constructor: (io_or_socket, options={}, cb=null) ->
@@ -13,15 +13,16 @@ class Client
 
     @_joined = []
 
-    @_connection_error = null
+    @_connectionError = null
 
-    if io_or_socket.Manager? and _connection_errors[@url]
 
-      @_connection_error = _connection_errors[@url]
+    if io_or_socket.Manager? and _connectionErrors[@url]
+
+      @_connectionError = _connectionErrors[@url]
 
       if cb
         setTimeout =>
-          cb @_connection_error
+          cb @_connectionError
         , 0
       return
 
@@ -50,7 +51,7 @@ class Client
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
     # not error, but connection acked
-    if io_or_socket.Manager? and @url of _connection_errors
+    if io_or_socket.Manager? and @url of _connectionErrors
       cb null, {success: true} if cb
       return
 
@@ -60,16 +61,16 @@ class Client
 
       if data.error
 
-        _connection_errors[self.url] = new Error(data.message)
-        _connection_errors[self.url].name = data.name
-        self._connection_error = _connection_errors[self.url]
+        _connectionErrors[self.url] = new Error(data.message)
+        _connectionErrors[self.url].name = data.name
+        self._connectionError = _connectionErrors[self.url]
 
-        cb self._connection_error if cb
+        cb self._connectionError if cb
 
         return
 
       # connection success
-      _connection_errors[self.url] = null
+      _connectionErrors[self.url] = null
 
       cb null, {success: true} if cb
 
@@ -100,8 +101,8 @@ class Client
 
   _send: (method, args=[], cb=()->) ->
 
-    if @_connection_error
-      return cb.apply(@, [@_connection_error])
+    if @_connectionError
+      return cb.apply(@, [@_connectionError])
 
     ack_cb = () ->
       return cb.apply(@, arguments)
