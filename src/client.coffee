@@ -45,7 +45,12 @@ class Client
 
           {req, ack_cb} = req
 
-          @_socket.emit 'apply', req, ack_cb
+          # リクエストの成否が不明なので再実行するべきではない(?)
+          # @_socket.emit 'apply', req, ack_cb
+
+          err = new Error('There is no chance of getting a response by the request')
+          err.name = 'ResponseError'
+          ack_cb err
 
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
