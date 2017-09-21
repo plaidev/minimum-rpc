@@ -12,8 +12,9 @@ class Client
 
     @_joined = []
 
-    @_requestId = 0
+    @_requestId = 1
     @_requestCache = {}
+    @_disconnected = true
 
     # for socket.io-client >= 1.4.x
     if io_or_socket.Manager?
@@ -26,7 +27,14 @@ class Client
 
       @_socket = @_manager.socket(path)
 
+      @_socket.on 'connect', =>
+        @_disconnected = false
+
+      @_socket.on 'disconnect', =>
+        @_disconnected = true
+
       @_socket.on 'reconnect', =>
+        @_disconnected = false
         joined = @_joined
         @_joined = []
 
@@ -91,10 +99,10 @@ class Client
       args: args
     }
 
-    # FIXME: can use Socket::disconnected?
-    if not @_socket.disconnected
-      @_socket.emit 'apply', req, ack_cb
+    @_socket.emit 'apply', req, ack_cb
 
-    @_requestCache[requestId] = {req, ack_cb}
+    # 明示的なdisconnectedの場合は、emit自体が保存される
+    if not @_disconnected
+      @_requestCache[requestId] = {req, ack_cb}
 
 module.exports = Client
