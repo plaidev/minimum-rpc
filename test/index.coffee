@@ -128,7 +128,7 @@ describe 'reconnect', ->
         assert event.val
         if reconnected
           assert event.reconnected
-          done()
+          app.close(done)
 
       setTimeout =>
         @server.channel.to('reconnect_test').emit 'test', {val: true}
