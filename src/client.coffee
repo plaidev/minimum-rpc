@@ -41,9 +41,14 @@ class Client
       @_socket = @_manager.socket(path)
 
       @_socket.on 'connect', =>
+
         @_disconnected = false
 
+        for k, req of @_requestCache
+          req.queued = false
+
       @_socket.on 'disconnect', =>
+
         @_disconnected = true
 
       @_socket.on 'reconnect', =>
@@ -60,10 +65,10 @@ class Client
 
         for k, req of @_requestCache
 
-          {req, ack_cb} = req
+          {ack_cb, queued} = req
 
-          # リクエストの成否が不明なので再実行するべきではない(?)
-          # @_socket.emit 'apply', req, ack_cb
+          if queued
+            continue
 
           err = new Error('There is no chance of getting a response by the request')
           err.name = 'ResponseError'
@@ -144,9 +149,10 @@ class Client
 
     @_socket.emit 'apply', req, ack_cb
 
-    # 明示的なdisconnectedの場合は、emit自体が保存される
-    if not @_disconnected
-      @_requestCache[requestId] = {req, ack_cb}
+    @_requestCache[requestId] = {
+      ack_cb
+      queued: @_disconnected
+    }
 
 
 module.exports = Client
