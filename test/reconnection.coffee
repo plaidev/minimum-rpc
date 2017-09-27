@@ -69,6 +69,7 @@ describe 'reconnect', ->
         cnt++
         console.log('okokok', err, n, cnt)
 
+        assert not err
         assert cnt is 3
         done()
 
