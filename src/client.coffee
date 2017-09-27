@@ -133,7 +133,7 @@ class Client
     ack_cb = () ->
       cb.apply(@, arguments)
 
-      delete self._requestCache[requestId] if self._requestCache[requestId]
+      delete self._requestCache[requestId]
 
       return
 
