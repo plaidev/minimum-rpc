@@ -172,11 +172,11 @@ describe 'reject connection', ->
       more_rejected_client = new Client io_for_client, {url: 'http://localhost:2001'}
 
       # connection error is shared for each url
-      assert err is more_rejected_client._connection_error
+      assert err is more_rejected_client._connectionError
 
       done()
 
-  it.skip 'call failed', (done) ->
+  it 'call failed', (done) ->
     rejected_client = new Client io_for_client, {url: 'http://localhost:2001'}, (err) ->
 
       rejected_client.send 'add', 1, 2, (err, result) ->
