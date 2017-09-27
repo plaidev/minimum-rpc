@@ -6,7 +6,8 @@
   "scripts": {
     "test": "mocha --reporter spec --compilers coffee:coffee-script/register",
     "server": "nodemon -e coffee example/simple/server.coffee",
-    "client": "coffee example/simple/client.coffee"
+    "client": "coffee example/simple/client.coffee",
+    "build": "grunt"
   },
   "repository": {
     "type": "git",
