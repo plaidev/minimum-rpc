@@ -92,6 +92,8 @@ class Server
 
           socket.emit 'connection_ack', {error: true, message: err.message, name: err.name}
 
+          socket.disconnect(true)
+
           return
 
         @_listen(socket)

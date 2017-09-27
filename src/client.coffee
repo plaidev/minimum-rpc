@@ -1,8 +1,9 @@
 
 _managers = {} # for socket.io-client >= 1.4.x
+_connectionErrors = {}
 
 class Client
-  constructor: (io_or_socket, options={}, cb) ->
+  constructor: (io_or_socket, options={}, cb=null) ->
 
     @url = options.url || ''
 
@@ -11,6 +12,18 @@ class Client
     @_socket = io_or_socket
 
     @_joined = []
+
+    @_connectionError = null
+
+    if io_or_socket.Manager? and _connectionErrors[@url]
+
+      @_connectionError = _connectionErrors[@url]
+
+      if cb
+        setTimeout =>
+          cb @_connectionError
+        , 0
+      return
 
     @_requestId = 1
     @_requestCache = {}
@@ -34,11 +47,15 @@ class Client
         @_disconnected = true
 
       @_socket.on 'reconnect', =>
+
         @_disconnected = false
+
         joined = @_joined
+
         @_joined = []
 
         for room in joined
+
           @join room
 
         for k, req of @_requestCache
@@ -55,13 +72,31 @@ class Client
     else if (io_or_socket.constructor.name isnt 'Socket')
       @_socket = io_or_socket.connect @url + '/' + @name_space, options.connect_options || {}
 
-    return if not cb
+    # not error, but connection acked
+    if io_or_socket.Manager? and @url of _connectionErrors
+      cb null, {success: true} if cb
+      return
+
+    self = @
 
     @_socket.on 'connection_ack', (data) ->
 
       if data.error
-        return cb data.error
-      return cb null, {success: true}
+
+        _connectionErrors[self.url] = new Error(data.message)
+        _connectionErrors[self.url].name = data.name
+        self._connectionError = _connectionErrors[self.url]
+
+        cb self._connectionError if cb
+
+        return
+
+      # connection success
+      _connectionErrors[self.url] = null
+
+      cb null, {success: true} if cb
+
+      return 
 
   join: (room, cb=()->) ->
     return cb?() if room in @_joined
@@ -88,6 +123,9 @@ class Client
 
   _send: (method, args=[], cb=()->) ->
 
+    if @_connectionError
+      return cb.apply(@, [@_connectionError])
+
     requestId = @_requestId++
 
     self = @
@@ -109,5 +147,6 @@ class Client
     # 明示的なdisconnectedの場合は、emit自体が保存される
     if not @_disconnected
       @_requestCache[requestId] = {req, ack_cb}
+
 
 module.exports = Client

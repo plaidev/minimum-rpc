@@ -3,7 +3,9 @@ assert = require("assert")
 app = require("http").createServer()
 io = require("socket.io")(app)
 io_for_client = require('socket.io-client')
-{Server, Client} = require('..')
+Server = require('../src/server')
+Client = require('../src/client')
+
 
 # server
 app.listen 2000, () ->
@@ -148,3 +150,35 @@ describe 'reconnect', ->
             @server.channel.to('reconnect_test').emit 'test', {val: true, reconnected}
           , 200
 
+
+describe 'reject connection', ->
+  before (done) ->
+    reject_app = require("http").createServer()
+    reject_io = require("socket.io")(reject_app)
+    reject_app.listen 2001, () ->
+      done()
+    reject_server = new Server(reject_io, undefined, {
+      connection: (socket, cb) ->
+        called['reject_connection'] = true
+        cb new Error('connection rejected')
+    })
+    reject_server.set 'add', (a, b, cb) ->
+      cb null, a+b
+
+  it 'connection failed', (done) ->
+    rejected_client = new Client io_for_client, {url: 'http://localhost:2001'}, (err) ->
+      assert err
+
+      more_rejected_client = new Client io_for_client, {url: 'http://localhost:2001'}
+
+      # connection error is shared for each url
+      assert err is more_rejected_client._connection_error
+
+      done()
+
+  it.skip 'call failed', (done) ->
+    rejected_client = new Client io_for_client, {url: 'http://localhost:2001'}, (err) ->
+
+      rejected_client.send 'add', 1, 2, (err, result) ->
+        assert err
+        done()
