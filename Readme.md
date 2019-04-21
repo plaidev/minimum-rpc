@@ -8,10 +8,6 @@ a minimum rpc module.
 
     $ npm install minimum-rpc
 
-  Install with [component(1)](http://component.io):
-
-    $ component install plaidev/minimum-rpc
-
 ## API
 
 ```coffeescript

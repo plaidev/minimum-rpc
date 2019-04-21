@@ -4,10 +4,10 @@
   "description": "a minimum rpc module.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter spec --compilers coffee:coffee-script/register",
-    "server": "nodemon -e coffee example/simple/server.coffee",
-    "client": "coffee example/simple/client.coffee",
-    "build": "grunt"
+    "test": "mocha --reporter spec",
+    "server": "node example/simple/server.js",
+    "client": "node example/simple/client.js",
+    "build": "webpack --progress"
   },
   "repository": {
     "type": "git",
@@ -24,17 +24,18 @@
   },
   "homepage": "https://github.com/plaidev/minimum-rpc",
   "devDependencies": {
-    "component": "^0.19.9",
-    "async": "^0.9.0",
-    "coffee-script": "^1.8.0",
-    "grunt": "~0.4.2",
-    "grunt-cli": "^0.1.13",
-    "grunt-contrib-coffee": "^0.12.0",
-    "grunt-contrib-watch": "^0.6.1",
-    "grunt-shell": "^1.1.1",
-    "lodash": "^2.4.1",
-    "mocha": "^2.0.1",
-    "socket.io": "^1.2.0",
-    "socket.io-client": "^1.2.0"
+    "babel-core": "6.21.0",
+    "babel-eslint": "8.0.3",
+    "babel-loader": "7.1.3",
+    "babel-preset-env": "1.7.0",
+    "mocha": "6.1.4",
+    "webpack": "4.5.0",
+    "webpack-cli": "2.0.4",
+    "socket.io": "^2.2.0",
+    "socket.io-client": "^2.2.0"
+  },
+  "dependencies": {
+    "async": "2.6.2",
+    "lodash": "4.17.11"
   }
 }
