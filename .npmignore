@@ -1,7 +1,4 @@
-src
-build
 example
 test
-Makefile
 Readme.md
 .envrc
